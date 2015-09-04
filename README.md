@@ -12,3 +12,10 @@ conversions of the new 13 TeV ntuples.
 
 The ```run.py``` script runs all the right files and outputs trees.
 You can modify that to change what files get ran over.
+
+The ```mp_run.py``` is a version of ```run``` that uses multiprocessing,
+as an experiment.
+
+If you don't want to the fancy stuff done in either run script, you
+can just copy the ```run()``` function into a script of your own and
+hard-code what you want to run over.
