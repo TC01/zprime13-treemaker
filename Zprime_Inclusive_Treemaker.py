@@ -49,6 +49,7 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('lepIsLoose', self.lepIsLoose)
 		self.lepIsTight = array('f', [-9])
 		self.addBranch('lepIsTight', self.lepIsTight)
+		# Lepton 2D and Triangle variables (based off of nearest "nice" jet)
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
 		self.addBranch('tagJetPt', self.tagJetPt)
@@ -258,6 +259,8 @@ class Zprime_Inclusive_Treemaker:
 					self.offJetPhi[0] = lightJetList[1].Phi()
 					self.offJetMass[0] = lightJetList[1].M()
 					self.offJetCSV[0] = Tree.jetAK4_CSV[lightJetIndex[1]]
+			#############   LEPTOJET VARS  ################
+				
 			############# EVENT QUANTITIES ################
 				lepTop = Ws[0] + lightJetList[0]
 				self.lepTopPt[0] = lepTop.Pt()
