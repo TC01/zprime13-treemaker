@@ -318,7 +318,8 @@ def make_W(met, lep): #both should be TLor vectors.
 		return [newmet_p+lep, newmet_m+lep]
 
 #### TEST THE ABOVE FUNCTIONS:
-F = "/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/"
-test = Zprime_Inclusive_Treemaker("test", F, False)
-test.Fill("B2GTTreeMaker/B2GTree")
-print "Cleaning up..."
+if __name__ == '__main__':
+	F = "/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/"
+	test = Zprime_Inclusive_Treemaker("test", F, False)
+	test.Fill("B2GTTreeMaker/B2GTree")
+	print "Cleaning up..."
