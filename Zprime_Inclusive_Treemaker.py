@@ -50,6 +50,10 @@ class Zprime_Inclusive_Treemaker:
 		self.lepIsTight = array('f', [-9])
 		self.addBranch('lepIsTight', self.lepIsTight)
 		# Lepton 2D and Triangle variables (based off of nearest "nice" jet)
+		self.lep2Ddr = array('f', [-99.9])
+		self.addBranch('lep2Ddr', self.lep2Ddr)
+		self.lep2Drel = array('f', [-99.9])
+		self.addBranch('lep2Drel', self.lep2Drel)
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
 		self.addBranch('tagJetPt', self.tagJetPt)
