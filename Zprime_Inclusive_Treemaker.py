@@ -241,13 +241,19 @@ class Zprime_Inclusive_Treemaker:
 			############# LIGHT JET PART ################
 				lightJetList = []
 				lightJetIndex = []
+				2dcutIndex = -1
+				2dcutDR = 9999.9
 				# Find the light jet (if a good candidate exists).
 				for i in range(min(Tree.jetAK4_size,4)):
 					iJet = 	ROOT.TLorentzVector()
 					iJet.SetPtEtaPhiE(Tree.jetAK4_Pt[i],Tree.jetAK4_Eta[i],Tree.jetAK4_Phi[i],Tree.jetAK4_E[i])
-					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 30 and math.fabs(iJet.Eta()) < 2.4:
+					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 50 and math.fabs(iJet.Eta()) < 2.4:
 						lightJetList.append(iJet)
 						lightJetIndex.append(i)
+						if iJet.DeltaR(lep) < 2dcutDR:
+							2dcutDR = iJet.deltaR(lep)
+							self.lep2Ddr[0] = iJet.DeltaR(lep)
+							self.lep2Drel[0] = iJet.Perp(lep)
 				if len(lightJetList) < 1:
 					continue
 				self.numLightJets[0] = len(lightJetList)
@@ -263,8 +269,6 @@ class Zprime_Inclusive_Treemaker:
 					self.offJetPhi[0] = lightJetList[1].Phi()
 					self.offJetMass[0] = lightJetList[1].M()
 					self.offJetCSV[0] = Tree.jetAK4_CSV[lightJetIndex[1]]
-			#############   LEPTOJET VARS  ################
-				
 			############# EVENT QUANTITIES ################
 				lepTop = Ws[0] + lightJetList[0]
 				self.lepTopPt[0] = lepTop.Pt()
