@@ -265,8 +265,8 @@ class Zprime_Inclusive_Treemaker:
 				self.eventMass[0] = (lightJetList[0] + TAGJET + Ws[0]).M()
 				if len(lightJetList) > 1:
 					hadTop = TAGJET + lightJetList[0]
-					self.hadTopPt2[0] = hadTop.Pt()
-					self.hadTopMass2[0] =  hadTop.M()
+					self.hadTopPt[0] = hadTop.Pt()
+					self.hadTopMass[0] =  hadTop.M()
 					hadTop2 = TAGJET + lightJetList[1]
 					self.hadTopPt2[0] = hadTop2.Pt()
 					self.hadTopMass2[0] =  hadTop2.M()
