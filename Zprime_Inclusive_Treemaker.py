@@ -241,8 +241,8 @@ class Zprime_Inclusive_Treemaker:
 			############# LIGHT JET PART ################
 				lightJetList = []
 				lightJetIndex = []
-				2dcutIndex = -1
-				2dcutDR = 9999.9
+				d2dcutIndex = -1
+				d2dcutDR = 9999.9
 				# Find the light jet (if a good candidate exists).
 				for i in range(min(Tree.jetAK4_size,4)):
 					iJet = 	ROOT.TLorentzVector()
@@ -250,10 +250,10 @@ class Zprime_Inclusive_Treemaker:
 					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 50 and math.fabs(iJet.Eta()) < 2.4:
 						lightJetList.append(iJet)
 						lightJetIndex.append(i)
-						if iJet.DeltaR(lep) < 2dcutDR:
-							2dcutDR = iJet.deltaR(lep)
+						if iJet.DeltaR(lep) < d2dcutDR:
+							d2dcutDR = iJet.DeltaR(lep)
 							self.lep2Ddr[0] = iJet.DeltaR(lep)
-							self.lep2Drel[0] = iJet.Perp(lep)
+							self.lep2Drel[0] = iJet.Perp(lep.Vect())
 				if len(lightJetList) < 1:
 					continue
 				self.numLightJets[0] = len(lightJetList)
