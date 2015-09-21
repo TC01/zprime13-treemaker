@@ -54,6 +54,13 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('lep2Ddr', self.lep2Ddr)
 		self.lep2Drel = array('f', [-99.9])
 		self.addBranch('lep2Drel', self.lep2Drel)
+		
+		# Also lep2D vars based off of tag jet (see below).
+		self.tagLep2Ddr = array('f', [-99.9])
+		self.addBranch('tagLep2Ddr', self.tagLep2Ddr)
+		self.tagLep2Drel = array('f', [-99.9])
+		self.addBranch('tagLep2Drel', self.tagLep2Drel)
+		
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
 		self.addBranch('tagJetPt', self.tagJetPt)
@@ -171,6 +178,7 @@ class Zprime_Inclusive_Treemaker:
 				self.tagJetTau3[0] = Tree.jetAK8_tau3[tagJetIndex]
 				TAGJET = ROOT.TLorentzVector()
 				TAGJET.SetPtEtaPhiM(self.tagJetPt[0],self.tagJetEta[0],self.tagJetPhi[0],self.tagJetPrMass[0])
+
 			############# MET PART ################
 				if Tree.met_Pt[0] > 25:
 					self.metPt[0] = Tree.met_Pt[0]
@@ -243,6 +251,11 @@ class Zprime_Inclusive_Treemaker:
 				lightJetIndex = []
 				d2dcutIndex = -1
 				d2dcutDR = 9999.9
+
+				# Also compute the DR between the tagged jet and the lepton.
+				self.tagLep2Ddr[0] = TAGJET.DeltaR(lep)
+				self.tagLep2Drel[0] = TAGJET.Perp(lep.Vect())
+
 				# Find the light jet (if a good candidate exists).
 				for i in range(min(Tree.jetAK4_size,4)):
 					iJet = 	ROOT.TLorentzVector()
