@@ -61,6 +61,8 @@ class Zprime_Inclusive_Treemaker:
 		# Leptonic isolation.
 		self.lepIso = array('f', [-1.0])
 		self.addBranch('lepIso', self.lepIso)
+		self.lepMiniIso = array('f', [-1.0])
+		self.addBranch('lepMiniIso', self.lepMiniIso)
 		
 		# Also lep2D vars based off of tag jet (see below).
 		self.tagLep2Ddr = array('f', [-99.9])
@@ -215,8 +217,10 @@ class Zprime_Inclusive_Treemaker:
 							self.lepPt[0] = Tree.mu_Pt[0]
 							self.lepPhi[0] = Tree.mu_Phi[0]
 							self.lepEta[0] = Tree.mu_Eta[0]
-							self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]	
-							self.lepIsTight[0] = Tree.mu_IsTightMuon[0]				
+							self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]
+							self.lepIsTight[0] = Tree.mu_IsTightMuon[0]
+							self.lepMiniIso[0] = Tree.mu_MiniIso[0]
+							self.lepIso[0] = Tree.mu_Iso04[0]
 							lepE = Tree.mu_E[0]
 				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) == 0:
 					if Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4:
@@ -226,8 +230,10 @@ class Zprime_Inclusive_Treemaker:
 							self.lepPt[0] = Tree.el_Pt[0]
 							self.lepPhi[0] = Tree.el_Phi[0]
 							self.lepEta[0] = Tree.el_Eta[0]
-							self.lepIsLoose[0] = Tree.el_isLoose[0]	
-							self.lepIsTight[0] = Tree.el_isTight[0]	
+							self.lepIsLoose[0] = Tree.el_isLoose[0]
+							self.lepIsTight[0] = Tree.el_isTight[0]
+							self.lepMiniIso[0] = Tree.el_MiniIso[0]
+							self.lepIso[0] = Tree.el_Iso03[0]
 							lepE = Tree.el_E[0]
 				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) > 0:
 					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.4 and 3 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
@@ -236,8 +242,10 @@ class Zprime_Inclusive_Treemaker:
 						self.lepPt[0] = Tree.mu_Pt[0]
 						self.lepPhi[0] = Tree.mu_Phi[0]
 						self.lepEta[0] = Tree.mu_Eta[0]
-						self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]	
-						self.lepIsTight[0] = Tree.mu_IsTightMuon[0]		
+						self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]
+						self.lepIsTight[0] = Tree.mu_IsTightMuon[0]
+						self.lepMiniIso[0] = Tree.mu_MiniIso[0]
+						self.lepIso[0] = Tree.mu_Iso04[0]
 						lepE = Tree.mu_E[0]
 					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4 and 3 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
 						self.isEl[0] = 1
@@ -245,8 +253,10 @@ class Zprime_Inclusive_Treemaker:
 						self.lepPt[0] = Tree.el_Pt[0]
 						self.lepPhi[0] = Tree.el_Phi[0]
 						self.lepEta[0] = Tree.el_Eta[0]
-						self.lepIsLoose[0] = Tree.el_isLoose[0] 	
-						self.lepIsTight[0] = Tree.el_isTight[0]		
+						self.lepIsLoose[0] = Tree.el_isLoose[0]
+						self.lepIsTight[0] = Tree.el_isTight[0]
+						self.lepMiniIso[0] = Tree.el_MiniIso[0]
+						self.lepIso[0] = Tree.el_Iso03[0]
 						lepE = Tree.el_E[0]
 
 				if lepE == -1:
