@@ -51,5 +51,7 @@ def multiprocess(directory):
 if __name__ == '__main__':
 	# Test code.
 	#run("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/", "test", False)
-	
+
+	# Things to actually run.
 	multiprocess("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/")
+	multiprocess("/eos/uscms/store/user/bjr/b2g/trees/Sep22")
