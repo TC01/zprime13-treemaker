@@ -10,6 +10,9 @@ from array import array
 import ROOT
 from ROOT import *
 
+# The leppt.
+lepPtCut = 25.
+
 # Class Definition:
 class Zprime_Inclusive_Treemaker:
 	def __init__(self, OutFileName, TreeFolder, isData): # Because the normalizations are now stored as event_weights directly in the TTrees, all we need is the folder containint the trees itself and a flag for looking at MC quantities.
@@ -55,11 +58,25 @@ class Zprime_Inclusive_Treemaker:
 		self.lep2Drel = array('f', [-99.9])
 		self.addBranch('lep2Drel', self.lep2Drel)
 		
+		# Leptonic isolation.
+		self.lepIso = array('f', [-1.0])
+		self.addBranch('lepIso', self.lepIso)
+		
 		# Also lep2D vars based off of tag jet (see below).
 		self.tagLep2Ddr = array('f', [-99.9])
 		self.addBranch('tagLep2Ddr', self.tagLep2Ddr)
 		self.tagLep2Drel = array('f', [-99.9])
 		self.addBranch('tagLep2Drel', self.tagLep2Drel)
+		
+		# We also want the actual 4 vector quantities for tag + lep.
+		self.tagLepPt = array('f', [-99.9])
+		self.addBranch('tagLepPt', self.tagLepPt)
+		self.tagLepPhi = array('f', [-99.9])
+		self.addBranch('tagLepPhi', self.tagLepPhi)
+		self.tagLepEta = array('f', [-99.9])
+		self.addBranch('tagLepEta', self.tagLepEta)
+		self.tagLepMass = array('f', [-99.9])
+		self.addBranch('tagLepMass', self.tagLepMass)
 		
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
@@ -191,8 +208,8 @@ class Zprime_Inclusive_Treemaker:
 				self.isMu[0] = 0
 				self.isEl[0] = 0	
 				if len(Tree.el_Pt) == 0 and len(Tree.mu_Pt) > 0:
-					if Tree.mu_Pt[0] > 100. and math.fabs(Tree.mu_Eta[0]) < 2.4:
-						if len(Tree.el_Pt) == 0 or Tree.el_Pt[0] < 33.33:
+					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.4:
+						if len(Tree.el_Pt) == 0 or Tree.el_Pt[0] < lepPtCut / 3.:
 							self.isMu[0] = 1
 							self.isEl[0] = 0
 							self.lepPt[0] = Tree.mu_Pt[0]
@@ -202,8 +219,8 @@ class Zprime_Inclusive_Treemaker:
 							self.lepIsTight[0] = Tree.mu_IsTightMuon[0]				
 							lepE = Tree.mu_E[0]
 				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) == 0:
-					if Tree.el_Pt[0] > 100. and math.fabs(Tree.el_Eta[0]) < 2.4:
-						if len(Tree.mu_Pt) == 0 or Tree.mu_Pt[0] < 33.33:
+					if Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4:
+						if len(Tree.mu_Pt) == 0 or Tree.mu_Pt[0] < lepPtCut / 3.:
 							self.isEl[0] = 1
 							self.isMu[0] = 0
 							self.lepPt[0] = Tree.el_Pt[0]
@@ -213,7 +230,7 @@ class Zprime_Inclusive_Treemaker:
 							self.lepIsTight[0] = Tree.el_isTight[0]	
 							lepE = Tree.el_E[0]
 				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) > 0:
-					if Tree.mu_Pt[0] > 100. and math.fabs(Tree.mu_Eta[0]) < 2.4 and 3 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
+					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.4 and 3 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
 						self.isMu[0] = 1
 						self.isEl[0] = 0
 						self.lepPt[0] = Tree.mu_Pt[0]
@@ -222,7 +239,7 @@ class Zprime_Inclusive_Treemaker:
 						self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]	
 						self.lepIsTight[0] = Tree.mu_IsTightMuon[0]		
 						lepE = Tree.mu_E[0]
-					elif Tree.el_Pt[0] > 100. and math.fabs(Tree.el_Eta[0]) < 2.4 and 3 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
+					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4 and 3 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
 						self.isEl[0] = 1
 						self.isMu[0] = 0
 						self.lepPt[0] = Tree.el_Pt[0]
@@ -253,8 +270,14 @@ class Zprime_Inclusive_Treemaker:
 				d2dcutDR = 9999.9
 
 				# Also compute the DR between the tagged jet and the lepton.
-				self.tagLep2Ddr[0] = TAGJET.DeltaR(lep)
-				self.tagLep2Drel[0] = TAGJET.Perp(lep.Vect())
+				self.tagLep2Ddr[0] = lep.DeltaR(TAGJET)
+				self.tagLep2Drel[0] = lep.Perp(TAGJET.Vect())
+				
+				tagLep = TAGJET + lep
+				self.tagLepMass[0] = tagLep.M()
+				self.tagLepPt[0] = tagLep.Pt()
+				self.tagLepEta[0] = tagLep.Eta()
+				self.tagLepPhi[0] = tagLep.Phi()
 
 				# Find the light jet (if a good candidate exists).
 				for i in range(min(Tree.jetAK4_size,4)):
@@ -265,8 +288,13 @@ class Zprime_Inclusive_Treemaker:
 						lightJetIndex.append(i)
 						if iJet.DeltaR(lep) < d2dcutDR:
 							d2dcutDR = iJet.DeltaR(lep)
-							self.lep2Ddr[0] = iJet.DeltaR(lep)
-							self.lep2Drel[0] = iJet.Perp(lep.Vect())
+							#self.lep2Ddr[0] = iJet.DeltaR(lep)
+							#self.lep2Drel[0] = iJet.Perp(lep.Vect())
+							self.lep2Ddr[0] = lep.DeltaR(iJet)
+							self.lep2Drel[0] = lep.Perp(iJet.Vect())
+							
+							# Store the pt
+							
 				if len(lightJetList) < 1:
 					continue
 				self.numLightJets[0] = len(lightJetList)
