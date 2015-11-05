@@ -79,7 +79,13 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('tagLepEta', self.tagLepEta)
 		self.tagLepMass = array('f', [-99.9])
 		self.addBranch('tagLepMass', self.tagLepMass)
-		
+
+		# Monte Carlo truth info.
+		self.MCtoppt = array('f', [-1.0])
+		self.MCantitoppt = array('f', [-1.0])
+		self.addBranch('MCtoppt', self.MCtoppt)
+		self.addBranch('MCantitoppt', self.MCantitoppt)
+
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
 		self.addBranch('tagJetPt', self.tagJetPt)
@@ -273,6 +279,17 @@ class Zprime_Inclusive_Treemaker:
 				self.wAltPt[0] = Ws[1].Pt()
 				self.wAltPhi[0] = Ws[1].Phi()
 				self.wAltEta[0] = Ws[1].Eta()
+
+
+				######## Monte Carlo stuff.
+				count = 0
+				for id in Tree.gen_ID:
+					if id == 6:
+						MCtoppt[0] = Tree.gen_Pt[count]
+					if id == -6:
+						MCantitoppt[0] = Tree.gen_Pt[count]
+					count += 1
+
 			############# LIGHT JET PART ################
 				lightJetList = []
 				lightJetIndex = []
