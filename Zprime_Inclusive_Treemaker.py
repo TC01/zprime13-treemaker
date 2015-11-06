@@ -283,12 +283,20 @@ class Zprime_Inclusive_Treemaker:
 
 				######## Monte Carlo stuff.
 				count = 0
+				foundT = False
+				foundTbar = False
 				for id in Tree.gen_ID:
 					if id == 6:
-						MCtoppt[0] = Tree.gen_Pt[count]
+						foundT = True
+						self.MCtoppt[0] = Tree.gen_Pt[count]
 					if id == -6:
-						MCantitoppt[0] = Tree.gen_Pt[count]
+						foundTbar = False
+						self.MCantitoppt[0] = Tree.gen_Pt[count]
 					count += 1
+				if not foundT:
+					self.MCtoppt[0] = -1.0
+				if not foundTbar:
+					self.MCantitoppt[0] = -1.0
 
 			############# LIGHT JET PART ################
 				lightJetList = []
