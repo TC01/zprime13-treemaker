@@ -318,7 +318,7 @@ class Zprime_Inclusive_Treemaker:
 				for i in range(min(Tree.jetAK4_size,4)):
 					iJet = 	ROOT.TLorentzVector()
 					iJet.SetPtEtaPhiE(Tree.jetAK4_Pt[i],Tree.jetAK4_Eta[i],Tree.jetAK4_Phi[i],Tree.jetAK4_E[i])
-					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 50 and math.fabs(iJet.Eta()) < 2.4:
+					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 30 and math.fabs(iJet.Eta()) < 2.4:
 						lightJetList.append(iJet)
 						lightJetIndex.append(i)
 						if iJet.DeltaR(lep) < d2dcutDR:
