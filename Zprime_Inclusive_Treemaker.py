@@ -182,7 +182,10 @@ class Zprime_Inclusive_Treemaker:
 				Tree.GetEntry(j) # populates all our self. arrays with the tree's values
 
 				# Start finding variables and doing analysis things:
-				self.weight[0] = Tree.evt_weight
+				try:
+					self.weight[0] = Tree.evt_weight
+				except:
+					self.weight[0] = 1.0
 			############# FAT JET PART ################
 				tagJetIndex = -1
 				nTagJets = 0
