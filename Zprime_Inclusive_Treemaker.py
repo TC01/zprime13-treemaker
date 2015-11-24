@@ -293,7 +293,7 @@ class Zprime_Inclusive_Treemaker:
 						foundT = True
 						self.MCtoppt[0] = Tree.gen_Pt[count]
 					if id == -6:
-						foundTbar = False
+						foundTbar = True
 						self.MCantitoppt[0] = Tree.gen_Pt[count]
 					count += 1
 				if not foundT:
