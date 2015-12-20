@@ -30,7 +30,7 @@ def multiprocess(directory):
 
 				# Decide which things are data.
 				isData = False
-				if "SingleElectron" or "SingleMu" in outputName:
+				if "SingleElectron" in outputName or "SingleMu" in outputName:
 					isData = True
 				
 				# Decide which things to exclude-- we only want the PromptReco data, I think?
@@ -53,11 +53,10 @@ if __name__ == '__main__':
 	#run("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/", "test", False)
 
 	# Things to actually run.
-#	multiprocess("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/")
-#	multiprocess("/eos/uscms/store/user/bjr/b2g/trees/Sep22")
-#	multiprocess("/eos/uscms/store/user/bjr/b2g-pt100/trees_ttbar/")
-#	multiprocess("/eos/uscms/store/user/bjr/b2g-pt100/trees_round2/")
+	multiprocess("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/")
+	multiprocess("/eos/uscms/store/user/bjr/b2g/trees/Sep22")
+	multiprocess("/eos/uscms/store/user/bjr/b2g-pt100/trees_current_job/")
+	multiprocess("/eos/uscms/store/user/bjr/b2g-particles/trees_split_data/")
 
-	# The data might be... large.
-	#multiprocess("/eos/uscms/store/user/bjr/b2g-particles/trees_data/")
-	run("/eos/uscms/store/user/bjr/b2g-particles/trees_data/SingleElectron_Run2015D-PromptReco_v4-decosa", "SingleElectron_Run2015D-PromptReco_v4-decosa", True)
+
+#	run("/eos/uscms/store/user/bjr/b2g-particles/trees_data/SingleElectron_Run2015D-PromptReco_v4-decosa", "SingleElectron_Run2015D-PromptReco_v4-decosa", True)

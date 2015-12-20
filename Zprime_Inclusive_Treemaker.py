@@ -25,6 +25,10 @@ class Zprime_Inclusive_Treemaker:
 				self.files.append(file)
 				print(file)
 		self.__book__()
+
+		print isData
+		self.isData = isData
+
 	def __book__(self): # Create Branches for new trees (Error values will generally be -99.9... you should never see -99.9 except for the third-jet, which isn't required in all events.
 		print "booking..."
 		## Writing new Tree:
@@ -69,7 +73,22 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('tagLep2Ddr', self.tagLep2Ddr)
 		self.tagLep2Drel = array('f', [-99.9])
 		self.addBranch('tagLep2Drel', self.tagLep2Drel)
+
+		# Also keep Janos's leptonic 2D cuts, but only one of them depending on the lepton.
+		self.ak4jetV1dr = array('f', [-99.9])
+		self.ak4jetV1rel = array('f', [-99.9])
+		self.ak4jetV2dr = array('f', [-99.9])
+		self.ak4jetV2rel = array('f', [-99.9])
+		self.ak4jetV3dr = array('f', [-99.9])
+		self.ak4jetV3rel = array('f', [-99.9])
 		
+		self.addBranch('ak4jetV1dr', self.ak4jetV1dr)
+		self.addBranch('ak4jetV1rel', self.ak4jetV1rel)
+		self.addBranch('ak4jetV2dr', self.ak4jetV2dr)
+		self.addBranch('ak4jetV2rel', self.ak4jetV2rel)
+		self.addBranch('ak4jetV3dr', self.ak4jetV3dr)
+		self.addBranch('ak4jetV3rel', self.ak4jetV3rel)
+
 		# We also want the actual 4 vector quantities for tag + lep.
 		self.tagLepPt = array('f', [-99.9])
 		self.addBranch('tagLepPt', self.tagLepPt)
@@ -85,6 +104,11 @@ class Zprime_Inclusive_Treemaker:
 		self.MCantitoppt = array('f', [-1.0])
 		self.addBranch('MCtoppt', self.MCtoppt)
 		self.addBranch('MCantitoppt', self.MCantitoppt)
+
+		self.isLeptonic = array('f', [0.0])
+		self.isTauEvent = array('f', [0.0])
+		self.addBranch('isLeptonic', self.isLeptonic)
+		self.addBranch('isTauEvent', self.isTauEvent)
 
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
@@ -270,6 +294,23 @@ class Zprime_Inclusive_Treemaker:
 
 				if lepE == -1:
 					continue
+
+				
+				# Keep whichever of Janos's 2D cuts is correct for this lepton.
+				if self.isEl[0] == 1:
+					self.ak4jetV1dr = Tree.el_AK4JetV1DR[0]
+					self.ak4jetV2dr = Tree.el_AK4JetV2DR[0]
+					self.ak4jetV3dr = Tree.el_AK4JetV3DR[0]
+					self.ak4jetV1rel = Tree.el_AK4JetV1PtRel[0]
+					self.ak4jetV2rel = Tree.el_AK4JetV2PtRel[0]
+					self.ak4jetV3rel = Tree.el_AK4JetV3PtRel[0]
+				elif self.isMu[0] == 1:
+					self.ak4jetV1dr = Tree.mu_AK4JetV1DR[0]
+					self.ak4jetV2dr = Tree.mu_AK4JetV2DR[0]
+					self.ak4jetV3dr = Tree.mu_AK4JetV3DR[0]
+					self.ak4jetV1rel = Tree.mu_AK4JetV1PtRel[0]
+					self.ak4jetV2rel = Tree.mu_AK4JetV2PtRel[0]
+					self.ak4jetV3rel = Tree.mu_AK4JetV3PtRel[0]
 			
 				lep = ROOT.TLorentzVector()
 				lep.SetPtEtaPhiE(self.lepPt[0],self.lepEta[0],self.lepPhi[0],lepE)
@@ -285,21 +326,43 @@ class Zprime_Inclusive_Treemaker:
 
 
 				######## Monte Carlo stuff.
-				count = 0
-				foundT = False
-				foundTbar = False
-				for id in Tree.gen_ID:
-					if id == 6:
-						foundT = True
-						self.MCtoppt[0] = Tree.gen_Pt[count]
-					if id == -6:
-						foundTbar = True
-						self.MCantitoppt[0] = Tree.gen_Pt[count]
-					count += 1
-				if not foundT:
-					self.MCtoppt[0] = -1.0
-				if not foundTbar:
-					self.MCantitoppt[0] = -1.0
+				if not self.isData:
+					count = 0
+					foundT = False
+					foundTbar = False
+					for id in Tree.gen_ID:
+						if id == 6:
+							foundT = True
+							self.MCtoppt[0] = Tree.gen_Pt[count]
+						if id == -6:
+							foundTbar = True
+							self.MCantitoppt[0] = Tree.gen_Pt[count]
+						count += 1
+					if not foundT:
+						self.MCtoppt[0] = -1.0
+					if not foundTbar:
+						self.MCantitoppt[0] = -1.0
+
+				# More Monte Carlo Stuff.
+				# Why wasn't this check above...?
+				if not self.isData:
+					self.isLeptonic[0] = 0.0
+					self.isTauEvent[0] = 0.0
+					leptonIDs = [11, 13, 15]
+					for mcIndex in xrange(len(Tree.gen_ID)):
+						id = Tree.gen_ID[mcIndex]
+						# Exciting. This is different...
+						try:
+							momID = Tree.gen_MomID[mcIndex]
+						except:
+							momID = Tree.gen_Mom0ID[mcIndex]
+						if id in leptonIDs and momID == abs(24):
+							self.isLeptonic[0] += 1.0
+						if id == 15:
+							self.isTauEvent[0] = 1.0
+							if momID == abs(24):
+								self.isTauEvent = 2.0
+				
 
 			############# LIGHT JET PART ################
 				lightJetList = []
