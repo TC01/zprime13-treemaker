@@ -110,6 +110,17 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('isLeptonic', self.isLeptonic)
 		self.addBranch('isTauEvent', self.isTauEvent)
 
+		# Keep systematics info and stuff.
+		self.XSec = array('f', [-1.0])
+		self.NEventCorr = array('f', [-1.0])
+		self.LumiWeight = array('f', [-1.0])
+		self.GenWeight = array('f', [-1.0])
+
+		self.addBranch('XSec', self.XSec)
+		self.addBranch('NEventCorr', self.NEventCorr)
+		self.addBranch('LumiWeight', self.LumiWeight)
+		self.addBranch('GenWeight', self.GenWeight)
+
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
 		self.addBranch('tagJetPt', self.tagJetPt)
@@ -363,6 +374,12 @@ class Zprime_Inclusive_Treemaker:
 							if momID == abs(24):
 								self.isTauEvent = 2.0
 				
+				# Monte Carlo - systematics stuff.
+				if not self.isData:
+					self.XSec[0] = Tree.evt_XSec
+					self.NEventCorr[0] = Tree.evt_NEventCorr
+					self.LumiWeight[0] = Tree.evt_LumiWeight
+					self.GenWeight[0] = Tree.evt_GenWeight
 
 			############# LIGHT JET PART ################
 				lightJetList = []
