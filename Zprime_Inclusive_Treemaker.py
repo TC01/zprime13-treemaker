@@ -226,7 +226,7 @@ class Zprime_Inclusive_Treemaker:
 				nTagJets = 0
 				# Find if we have (exactly) one heavy jet.
 				for i in range(min(Tree.jetAK8_size,4)):		
-					if Tree.jetAK8_prunedMass[i] > 50 and Tree.jetAK8_Pt[i] > 200:
+					if Tree.jetAK8_prunedMass[i] > 50 and Tree.jetAK8_Pt[i] > 200 and math.fabs(Tree.jetAK8_Eta[0]) < 2.1:
 						tagJetIndex = i
 						nTagJets += 1
 				if nTagJets != 1:
@@ -248,65 +248,62 @@ class Zprime_Inclusive_Treemaker:
 					self.metPhi[0] = Tree.met_Phi[0]
 				else:
 					continue
+
 			############# LEPTON PART ################
 
 				lepE = -1
 				self.isMu[0] = 0
 				self.isEl[0] = 0	
 				if len(Tree.el_Pt) == 0 and len(Tree.mu_Pt) > 0:
-					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.4:
-						if len(Tree.el_Pt) == 0 or Tree.el_Pt[0] < lepPtCut / 3.:
-							self.isMu[0] = 1
-							self.isEl[0] = 0
-							self.lepPt[0] = Tree.mu_Pt[0]
-							self.lepPhi[0] = Tree.mu_Phi[0]
-							self.lepEta[0] = Tree.mu_Eta[0]
-							self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]
-							self.lepIsTight[0] = Tree.mu_IsTightMuon[0]
-							self.lepMiniIso[0] = Tree.mu_MiniIso[0]
-							self.lepIso[0] = Tree.mu_Iso04[0]
-							lepE = Tree.mu_E[0]
-				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) == 0:
-					if Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4:
-						if len(Tree.mu_Pt) == 0 or Tree.mu_Pt[0] < lepPtCut / 3.:
-							self.isEl[0] = 1
-							self.isMu[0] = 0
-							self.lepPt[0] = Tree.el_Pt[0]
-							self.lepPhi[0] = Tree.el_Phi[0]
-							self.lepEta[0] = Tree.el_Eta[0]
-							self.lepIsLoose[0] = Tree.el_isLoose[0]
-							self.lepIsTight[0] = Tree.el_isTight[0]
-							self.lepMiniIso[0] = Tree.el_MiniIso[0]
-							self.lepIso[0] = Tree.el_Iso03[0]
-							lepE = Tree.el_E[0]
-				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) > 0:
-					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.4 and 3 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
+					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.1:
 						self.isMu[0] = 1
 						self.isEl[0] = 0
-						self.lepPt[0] = Tree.mu_Pt[0]
-						self.lepPhi[0] = Tree.mu_Phi[0]
-						self.lepEta[0] = Tree.mu_Eta[0]
-						self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]
-						self.lepIsTight[0] = Tree.mu_IsTightMuon[0]
-						self.lepMiniIso[0] = Tree.mu_MiniIso[0]
-						self.lepIso[0] = Tree.mu_Iso04[0]
-						lepE = Tree.mu_E[0]
-					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.4 and 3 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
+				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) == 0:
+					if Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.1:
 						self.isEl[0] = 1
 						self.isMu[0] = 0
-						self.lepPt[0] = Tree.el_Pt[0]
-						self.lepPhi[0] = Tree.el_Phi[0]
-						self.lepEta[0] = Tree.el_Eta[0]
-						self.lepIsLoose[0] = Tree.el_isLoose[0]
-						self.lepIsTight[0] = Tree.el_isTight[0]
-						self.lepMiniIso[0] = Tree.el_MiniIso[0]
-						self.lepIso[0] = Tree.el_Iso03[0]
-						lepE = Tree.el_E[0]
+				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) > 0:
+					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.1 and 2 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
+						self.isMu[0] = 1
+						self.isEl[0] = 0
+					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.1 and 2 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
+						self.isEl[0] = 1
+						self.isMu[0] = 0
 
+				# Code reuse = bad! Only do this once for significantly cleaner code...
+				if self.isMu[0] == 1:
+					self.lepPt[0] = Tree.mu_Pt[0]
+					self.lepPhi[0] = Tree.mu_Phi[0]
+					self.lepEta[0] = Tree.mu_Eta[0]
+					self.lepIsLoose[0] = Tree.mu_IsLooseMuon[0]
+					self.lepIsTight[0] = Tree.mu_IsTightMuon[0]
+					self.lepMiniIso[0] = Tree.mu_MiniIso[0]
+					self.lepIso[0] = Tree.mu_Iso04[0]
+					self.ak4jetV1dr = Tree.mu_AK4JetV1DR[0]
+					self.ak4jetV2dr = Tree.mu_AK4JetV2DR[0]
+					self.ak4jetV3dr = Tree.mu_AK4JetV3DR[0]
+					self.ak4jetV1rel = Tree.mu_AK4JetV1PtRel[0]
+					self.ak4jetV2rel = Tree.mu_AK4JetV2PtRel[0]
+					self.ak4jetV3rel = Tree.mu_AK4JetV3PtRel[0]
+					lepE = Tree.mu_E[0]
+				elif self.isEl[0] == 1:
+					self.lepPt[0] = Tree.el_Pt[0]
+					self.lepPhi[0] = Tree.el_Phi[0]
+					self.lepEta[0] = Tree.el_Eta[0]
+					self.lepIsLoose[0] = Tree.el_isLoose[0]
+					self.lepIsTight[0] = Tree.el_isTight[0]
+					self.lepMiniIso[0] = Tree.el_MiniIso[0]
+					self.lepIso[0] = Tree.el_Iso03[0]
+					self.ak4jetV1dr = Tree.el_AK4JetV1DR[0]
+					self.ak4jetV2dr = Tree.el_AK4JetV2DR[0]
+					self.ak4jetV3dr = Tree.el_AK4JetV3DR[0]
+					self.ak4jetV1rel = Tree.el_AK4JetV1PtRel[0]
+					self.ak4jetV2rel = Tree.el_AK4JetV2PtRel[0]
+					self.ak4jetV3rel = Tree.el_AK4JetV3PtRel[0]
+					lepE = Tree.el_E[0]
 				if lepE == -1:
 					continue
 
-				
 				# Keep whichever of Janos's 2D cuts is correct for this lepton.
 				if self.isEl[0] == 1:
 					self.ak4jetV1dr = Tree.el_AK4JetV1DR[0]
@@ -322,7 +319,7 @@ class Zprime_Inclusive_Treemaker:
 					self.ak4jetV1rel = Tree.mu_AK4JetV1PtRel[0]
 					self.ak4jetV2rel = Tree.mu_AK4JetV2PtRel[0]
 					self.ak4jetV3rel = Tree.mu_AK4JetV3PtRel[0]
-			
+
 				lep = ROOT.TLorentzVector()
 				lep.SetPtEtaPhiE(self.lepPt[0],self.lepEta[0],self.lepPhi[0],lepE)
 				met = ROOT.TLorentzVector()
@@ -373,7 +370,7 @@ class Zprime_Inclusive_Treemaker:
 							self.isTauEvent[0] = 1.0
 							if momID == abs(24):
 								self.isTauEvent = 2.0
-				
+
 				# Monte Carlo - systematics stuff.
 				if not self.isData:
 					self.XSec[0] = Tree.evt_XSec
@@ -390,7 +387,7 @@ class Zprime_Inclusive_Treemaker:
 				# Also compute the DR between the tagged jet and the lepton.
 				self.tagLep2Ddr[0] = lep.DeltaR(TAGJET)
 				self.tagLep2Drel[0] = lep.Perp(TAGJET.Vect())
-				
+
 				tagLep = TAGJET + lep
 				self.tagLepMass[0] = tagLep.M()
 				self.tagLepPt[0] = tagLep.Pt()
@@ -401,7 +398,7 @@ class Zprime_Inclusive_Treemaker:
 				for i in range(min(Tree.jetAK4_size,4)):
 					iJet = 	ROOT.TLorentzVector()
 					iJet.SetPtEtaPhiE(Tree.jetAK4_Pt[i],Tree.jetAK4_Eta[i],Tree.jetAK4_Phi[i],Tree.jetAK4_E[i])
-					if iJet.DeltaR(TAGJET) > 0.6 and iJet.Pt() > 30 and math.fabs(iJet.Eta()) < 2.4:
+					if iJet.DeltaR(TAGJET) > 0.6 and math.fabs(iJet.Eta()) < 2.1:
 						lightJetList.append(iJet)
 						lightJetIndex.append(i)
 						if iJet.DeltaR(lep) < d2dcutDR:
@@ -410,9 +407,9 @@ class Zprime_Inclusive_Treemaker:
 							#self.lep2Drel[0] = iJet.Perp(lep.Vect())
 							self.lep2Ddr[0] = lep.DeltaR(iJet)
 							self.lep2Drel[0] = lep.Perp(iJet.Vect())
-							
+
 							# Store the pt
-							
+
 				if len(lightJetList) < 1:
 					continue
 				self.numLightJets[0] = len(lightJetList)
@@ -428,23 +425,33 @@ class Zprime_Inclusive_Treemaker:
 					self.offJetPhi[0] = lightJetList[1].Phi()
 					self.offJetMass[0] = lightJetList[1].M()
 					self.offJetCSV[0] = Tree.jetAK4_CSV[lightJetIndex[1]]
+
 			############# EVENT QUANTITIES ################
 				lepTop = Ws[0] + lightJetList[0]
 				self.lepTopPt[0] = lepTop.Pt()
 				self.lepTopMass[0] =  lepTop.M()
 				self.eventMass[0] = (lightJetList[0] + TAGJET + Ws[0]).M()
+
+
+				# Hadronic top assignments.
+				hadTop = TAGJET + lightJetList[0]
+				self.hadTopPt[0] = hadTop.Pt()
+				self.hadTopMass[0] =  hadTop.M()
 				if len(lightJetList) > 1:
-					hadTop = TAGJET + lightJetList[0]
-					self.hadTopPt[0] = hadTop.Pt()
-					self.hadTopMass[0] =  hadTop.M()
-					hadTop2 = TAGJET + lightJetList[1]
+					if lep.DeltaR(lightJetList[0]) < lep.DeltaR(lightJetList[1]):
+						hadTop2 = TAGJET + lightJetList[1]
+						lepTop2 = Ws[0] + lightJetList[0]
+					elif lep.DeltaR(lightJetList[1]) < lep.DeltaR(lightJetList[0]):
+						hadTop2 = TAGJET + lightJetList[0]
+						lepTop2 = Ws[0] + lightJetList[1]
+
+					self.lepTopPt2[0] = lepTop2.Pt()
+					self.lepTopMass2[0] =  lepTop2.M()
 					self.hadTopPt2[0] = hadTop2.Pt()
 					self.hadTopMass2[0] =  hadTop2.M()
 					self.eventMass2[0] = (lightJetList[0] + lightJetList[1] + TAGJET + Ws[0]).M()
-					lepTop2 = Ws[0] + lightJetList[1]
-					self.lepTopPt2[0] = lepTop2.Pt()
-					self.lepTopMass2[0] =  lepTop2.M()
-#	#	#	#	# Fill things:		#	#	#
+
+#	#	#	#	# Fill things:
 				self.tree.Fill()
 
 			File.Close()
