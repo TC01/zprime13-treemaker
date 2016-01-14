@@ -184,6 +184,8 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('lepTopMass', self.lepTopMass)
 		self.lepTopMass2 = array('f', [-99.9])
 		self.addBranch('lepTopMass2', self.lepTopMass2)
+		self.lepTopCSV2 = array('f', [-99.9])
+		self.addBranch('lepTopCSV2', self.lepTopCSV2)
 		# - with TAGJET:
 		self.hadTopPt = array('f', [-99.9])
 		self.addBranch('hadTopPt', self.hadTopPt)
@@ -441,9 +443,11 @@ class Zprime_Inclusive_Treemaker:
 					if lep.DeltaR(lightJetList[0]) < lep.DeltaR(lightJetList[1]):
 						hadTop2 = TAGJET + lightJetList[1]
 						lepTop2 = Ws[0] + lightJetList[0]
+						self.lepTopCSV2[0] = Tree.jetAK4_CSV[lightJetIndex[0]]
 					elif lep.DeltaR(lightJetList[1]) < lep.DeltaR(lightJetList[0]):
 						hadTop2 = TAGJET + lightJetList[0]
 						lepTop2 = Ws[0] + lightJetList[1]
+						self.lepTopCSV2[0] = Tree.jetAK4_CSV[lightJetIndex[1]]
 
 					self.lepTopPt2[0] = lepTop2.Pt()
 					self.lepTopMass2[0] =  lepTop2.M()
