@@ -204,6 +204,7 @@ class Zprime_Inclusive_Treemaker:
 		# Triggers that we care about.
 		self.HLT_Mu24_eta2p1 = array('f', [-1.0])
 		self.addBranch('HLT_Mu24_eta2p1', self.HLT_Mu24_eta2p1)
+		self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30 = array('f', [-1.0])
 		self.addBranch('HLT_Ele33_CaloIdM_TrackIdM_PFJet30', self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30)
 
 
