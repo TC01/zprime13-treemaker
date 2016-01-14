@@ -199,9 +199,16 @@ class Zprime_Inclusive_Treemaker:
 		self.eventMass = array('f', [-99.9])
 		self.addBranch('eventMass', self.eventMass)
 		self.eventMass2 = array('f', [-99.9])
-		self.addBranch('eventMass2', self.eventMass2)		
+		self.addBranch('eventMass2', self.eventMass2)
+
+		# Triggers that we care about.
+		self.HLT_Mu24_eta2p1 = array('f', [-1.0])
+		self.addBranch('HLT_Mu24_eta2p1', self.HLT_Mu24_eta2p1)
+
+
 	def LoadBranch(self, Tree, var):
 		Tree.SetBranchAddress(var[0], var[1])
+
 	def Fill(self, TreeName): # Loop through events and fill them. Actual Fill step is done at the end, allowing us to make a few quality control cuts.
 		total = 0
 		print "filling..."
@@ -379,6 +386,11 @@ class Zprime_Inclusive_Treemaker:
 					self.NEventCorr[0] = Tree.evt_NEventCorr
 					self.LumiWeight[0] = Tree.evt_LumiWeight
 					self.GenWeight[0] = Tree.evt_GenWeight
+
+
+				# Monte Carlo - triggers.
+				if not self.isData:
+					self.HLT_Mu24_eta2p1[0] = Tree.HLT_Mu24_eta2p1[0]
 
 			############# LIGHT JET PART ################
 				lightJetList = []
