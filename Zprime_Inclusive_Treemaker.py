@@ -30,6 +30,12 @@ class Zprime_Inclusive_Treemaker:
 		self.isData = isData
 		self.__book__()
 
+	def getUncertainty(self, rootfile, name, outputName):
+		dataEff = rootfile.Get(name + "/efficienciesMC/abseta_pt_MC")
+		mcEff = rootfile.Get(name + "/efficienciesDATA/abseta_pc_DATA")
+		dataEff.Divide(mcEff)
+		return dataEff.Clone(outputName)
+
 	def GetLepUncertainties(self,lF):
 		# lepID:
 		muFile_ID = TFile(lF[0])
@@ -39,6 +45,11 @@ class Zprime_Inclusive_Treemaker:
 		# now divide them and keep the result for later:
 		self.DATA_2D_muID_eff.Divide(self.MC_2D_muID_eff)
 		self.muID_eff = self.DATA_2D_muID_eff.Clone("ID_eff")
+
+		# Triggers. This could be made nicer but I'm feeling lazy...
+		triggerFile = ROOT.TFile(lF[1])
+		self.runC_rereco_mu45_eff = self.getUncertainty(triggerFile, "runCreRECO_Mu45_eta2p1_PtEtaBins")
+		self.runD_mu45_eff = self.getUncertainty(triggerFile, "runD_Mu45_eta2p1_PtEtaBins")
 
 	# Create Branches for new trees (Error values will generally be -99.9... you should never see -99.9 except for the third-jet, which isn't required in all events.
 	def __book__(self):
@@ -128,6 +139,10 @@ class Zprime_Inclusive_Treemaker:
 		self.GenWeight = array('f', [-1.0])
 		self.muIDWeight = array('f', [-1.0])
 		self.muIDWeightErr = array('f', [-1.0])
+		self.runCrereco_mu45_Weight = array('f', [-1.0])
+		self.runCrereco_mu45_WeightErr = array('f', [-1.0])
+		self.runD_mu45_Weight = array('f', [-1.0])
+		self.runD_mu45_WeightErr = array('f', [-1.0])
 
 		self.addBranch('XSec', self.XSec)
 		self.addBranch('NEventCorr', self.NEventCorr)
@@ -448,6 +463,10 @@ class Zprime_Inclusive_Treemaker:
 					# LEP SF
 					self.muIDWeight[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					self.muIDWeightErr[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
+					self.runCreReco_mu45_Weight[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runCrereco_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runD_mu45_Weight[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runD_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					# JET SF
 					# TRUTH
 					count = 0
