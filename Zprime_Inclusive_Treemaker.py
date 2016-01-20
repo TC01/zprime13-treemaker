@@ -15,7 +15,8 @@ lepPtCut = 25.
 
 # Class Definition:
 class Zprime_Inclusive_Treemaker:
-	def __init__(self, OutFileName, TreeFolder, isData): # Because the normalizations are now stored as event_weights directly in the TTrees, all we need is the folder containint the trees itself and a flag for looking at MC quantities.
+	# Because the normalizations are now stored as event_weights directly in the TTrees, all we need is the folder containint the trees itself and a flag for looking at MC quantities.
+	def __init__(self, OutFileName, TreeFolder, isData, lepFiles): 
 		self.outname = OutFileName
 		self.files = []
 		self.TF = TreeFolder
@@ -24,16 +25,26 @@ class Zprime_Inclusive_Treemaker:
 			if file.endswith(".root"):
 				self.files.append(file)
 				print(file)
+		print "IS THIS DATA? --- " + str(isData)
+		self.lepFiles = lepFiles
+		self.isData = isData
 		self.__book__()
 
-		print isData
-		self.isData = isData
+	def GetLepUncertainties(self,lF):
+		# lepID:
+		muFile_ID = TFile(lF[0])
+		self.muFile_ID = muFile_ID
+		self.MC_2D_muID_eff = self.muFile_ID.Get("NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1/efficienciesMC/abseta_pt_MC")
+		self.DATA_2D_muID_eff = self.muFile_ID.Get("NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1/efficienciesDATA/abseta_pt_DATA")
+		# now divide them and keep the result for later:
+		self.DATA_2D_muID_eff.Divide(self.MC_2D_muID_eff)
+		self.muID_eff = self.DATA_2D_muID_eff.Clone("ID_eff")
 
-	def __book__(self): # Create Branches for new trees (Error values will generally be -99.9... you should never see -99.9 except for the third-jet, which isn't required in all events.
+	# Create Branches for new trees (Error values will generally be -99.9... you should never see -99.9 except for the third-jet, which isn't required in all events.
+	def __book__(self):
 		print "booking..."
 		## Writing new Tree:
 		self.f = TFile( self.outname + ".root", "RECREATE" )
-#        	self.f.cd()
 		self.tree = TTree("tree", "tree")
 		# Branches of that tree:
 		self.weight = array('f', [-99.9])
@@ -115,11 +126,15 @@ class Zprime_Inclusive_Treemaker:
 		self.NEventCorr = array('f', [-1.0])
 		self.LumiWeight = array('f', [-1.0])
 		self.GenWeight = array('f', [-1.0])
+		self.muIDWeight = array('f', [-1.0])
+		self.muIDWeightErr = array('f', [-1.0])
 
 		self.addBranch('XSec', self.XSec)
 		self.addBranch('NEventCorr', self.NEventCorr)
 		self.addBranch('LumiWeight', self.LumiWeight)
 		self.addBranch('GenWeight', self.GenWeight)
+		self.addBranch('muIDWeight', self.muIDWeight)
+		self.addBranch('muIDWeightErr', self.muIDWeightErr)
 
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
@@ -138,6 +153,7 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('tagJetTau2', self.tagJetTau2)
 		self.tagJetTau3 = array('f', [-99.9])
 		self.addBranch('tagJetTau3', self.tagJetTau3)
+
 		# W RECONSTRUCTION
 		self.wPt = array('f', [-99.9])
 		self.addBranch('wPt', self.wPt)
@@ -151,6 +167,7 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('wAltPhi', self.wAltPhi)
 		self.wAltEta = array('f', [-99.9])
 		self.addBranch('wAltEta', self.wAltEta)
+
 		# TWO LIGHT JETS AND RELATED QUANTITIES:
 		# - jets themselves:	
 		self.numLightJets = array('i', [-9])
@@ -212,6 +229,10 @@ class Zprime_Inclusive_Treemaker:
 		Tree.SetBranchAddress(var[0], var[1])
 
 	def Fill(self, TreeName): # Loop through events and fill them. Actual Fill step is done at the end, allowing us to make a few quality control cuts.
+
+		if not self.isData:
+			self.GetLepUncertainties(self.lepFiles)
+
 		total = 0
 		print "filling..."
 		for i in self.files:
@@ -251,7 +272,7 @@ class Zprime_Inclusive_Treemaker:
 				self.tagJetTau2[0] = Tree.jetAK8_tau2[tagJetIndex]
 				self.tagJetTau3[0] = Tree.jetAK8_tau3[tagJetIndex]
 				TAGJET = ROOT.TLorentzVector()
-				TAGJET.SetPtEtaPhiM(self.tagJetPt[0],self.tagJetEta[0],self.tagJetPhi[0],self.tagJetPrMass[0])
+				TAGJET.SetPtEtaPhiE(self.tagJetPt[0],self.tagJetEta[0],self.tagJetPhi[0],Tree.jetAK8_E[tagJetIndex])
 
 			############# MET PART ################
 				if Tree.met_Pt[0] > 25:
@@ -343,58 +364,6 @@ class Zprime_Inclusive_Treemaker:
 				self.wAltPhi[0] = Ws[1].Phi()
 				self.wAltEta[0] = Ws[1].Eta()
 
-
-				######## Monte Carlo stuff.
-				if not self.isData:
-					count = 0
-					foundT = False
-					foundTbar = False
-					for id in Tree.gen_ID:
-						if id == 6:
-							foundT = True
-							self.MCtoppt[0] = Tree.gen_Pt[count]
-						if id == -6:
-							foundTbar = True
-							self.MCantitoppt[0] = Tree.gen_Pt[count]
-						count += 1
-					if not foundT:
-						self.MCtoppt[0] = -1.0
-					if not foundTbar:
-						self.MCantitoppt[0] = -1.0
-
-				# More Monte Carlo Stuff.
-				# Why wasn't this check above...?
-				if not self.isData:
-					self.isLeptonic[0] = 0.0
-					self.isTauEvent[0] = 0.0
-					leptonIDs = [11, 13, 15]
-					for mcIndex in xrange(len(Tree.gen_ID)):
-						id = Tree.gen_ID[mcIndex]
-						# Exciting. This is different...
-						try:
-							momID = Tree.gen_MomID[mcIndex]
-						except:
-							momID = Tree.gen_Mom0ID[mcIndex]
-						if id in leptonIDs and momID == abs(24):
-							self.isLeptonic[0] += 1.0
-						if id == 15:
-							self.isTauEvent[0] = 1.0
-							if momID == abs(24):
-								self.isTauEvent = 2.0
-
-				# Monte Carlo - systematics stuff.
-				if not self.isData:
-					self.XSec[0] = Tree.evt_XSec
-					self.NEventCorr[0] = Tree.evt_NEventCorr
-					self.LumiWeight[0] = Tree.evt_LumiWeight
-					self.GenWeight[0] = Tree.evt_GenWeight
-
-
-				# Monte Carlo - triggers.
-				if not self.isData:
-					self.HLT_Mu24_eta2p1[0] = Tree.HLT_Mu24_eta2p1[0]
-					self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30[0] = Tree.HLT_Ele33_CaloIdM_TrackIdM_PFJet30[0]
-
 			############# LIGHT JET PART ################
 				lightJetList = []
 				lightJetIndex = []
@@ -412,10 +381,10 @@ class Zprime_Inclusive_Treemaker:
 				self.tagLepPhi[0] = tagLep.Phi()
 
 				# Find the light jet (if a good candidate exists).
-				for i in range(min(Tree.jetAK4_size,4)):
+				for i in range(min(Tree.jetAK4_size,6)):
 					iJet = 	ROOT.TLorentzVector()
 					iJet.SetPtEtaPhiE(Tree.jetAK4_Pt[i],Tree.jetAK4_Eta[i],Tree.jetAK4_Phi[i],Tree.jetAK4_E[i])
-					if iJet.DeltaR(TAGJET) > 0.6 and math.fabs(iJet.Eta()) < 2.1:
+					if iJet.Pt() > 100. and iJet.DeltaR(TAGJET) > 0.6 and math.fabs(iJet.Eta()) < 2.1:
 						lightJetList.append(iJet)
 						lightJetIndex.append(i)
 						if iJet.DeltaR(lep) < d2dcutDR:
@@ -469,6 +438,60 @@ class Zprime_Inclusive_Treemaker:
 					self.hadTopPt2[0] = hadTop2.Pt()
 					self.hadTopMass2[0] =  hadTop2.M()
 					self.eventMass2[0] = (lightJetList[0] + lightJetList[1] + TAGJET + Ws[0]).M()
+				
+				# MC Filling:
+				######## Monte Carlo stuff.
+				if not self.isData:
+					# LEP SF
+					self.muIDWeight[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.muIDWeightErr[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
+					# JET SF
+					# TRUTH
+					count = 0
+					foundT = False
+					foundTbar = False
+					for id in Tree.gen_ID:
+						if id == 6:
+							foundT = True
+							self.MCtoppt[0] = Tree.gen_Pt[count]
+						if id == -6:
+							foundTbar = True
+							self.MCantitoppt[0] = Tree.gen_Pt[count]
+						count += 1
+					if not foundT:
+						self.MCtoppt[0] = -1.0
+					if not foundTbar:
+						self.MCantitoppt[0] = -1.0
+
+					# More Monte Carlo Stuff.
+					self.isLeptonic[0] = 0.0
+					self.isTauEvent[0] = 0.0
+					leptonIDs = [11, 13, 15]
+					for mcIndex in xrange(len(Tree.gen_ID)):
+						id = Tree.gen_ID[mcIndex]
+						# Exciting. This is different...
+						try:
+							momID = Tree.gen_MomID[mcIndex]
+						except:
+							momID = Tree.gen_Mom0ID[mcIndex]
+						if id in leptonIDs and momID == abs(24):
+							self.isLeptonic[0] += 1.0
+						if id == 15:
+							self.isTauEvent[0] = 1.0
+							if momID == abs(24):
+								self.isTauEvent = 2.0
+
+					# Monte Carlo - systematics stuff.
+					self.XSec[0] = Tree.evt_XSec
+					self.NEventCorr[0] = Tree.evt_NEvent_Corr
+					self.LumiWeight[0] = Tree.evt_Lumi_Weight
+					self.GenWeight[0] = Tree.evt_Gen_Weight
+
+
+					# Monte Carlo - triggers.
+					self.HLT_Mu24_eta2p1[0] = Tree.HLT_Mu24_eta2p1
+					self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30[0] = Tree.HLT_Ele33_CaloIdM_TrackIdM_PFJet30
+
 
 #	#	#	#	# Fill things:
 				self.tree.Fill()
@@ -486,7 +509,10 @@ class Zprime_Inclusive_Treemaker:
 		self.tree.Branch(name, var, name+'/F')
 	def __del__(self):
 	        self.f.Close()
-
+def get_lep_SF_and_Unc(scan, pt, eta):
+	SF = scan.GetBinContent(scan.FindBin(eta,pt))
+	SF_Err = scan.GetBinError(scan.FindBin(eta,pt))
+	return [SF, SF_Err]
 def make_W(met, lep): #both should be TLor vectors.
 	newmet = ROOT.TLorentzVector()
 	newmet_m = ROOT.TLorentzVector()
@@ -515,7 +541,8 @@ def make_W(met, lep): #both should be TLor vectors.
 
 #### TEST THE ABOVE FUNCTIONS:
 if __name__ == '__main__':
-	F = "/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/"
-	test = Zprime_Inclusive_Treemaker("test", F, False)
+	F = "/eos/uscms/store/user/bjr/b2g/zprime-trees/ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar_RH_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar/160105_194555/0000/"
+	test = Zprime_Inclusive_Treemaker("test", F, False, ["MuonID_Z_RunCD_Reco74X_Dec1.root"])
 	test.Fill("B2GTTreeMaker/B2GTree")
 	print "Cleaning up..."
+
