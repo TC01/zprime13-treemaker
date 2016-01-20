@@ -9,9 +9,11 @@ from Zprime_Inclusive_Treemaker import Zprime_Inclusive_Treemaker
 # Define a timeout.
 mpTimeout = 43200
 
+triggers = ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.root"]
+
 def run(source, output, isData):
 	print "*** Running over " + source
-	treemaker = Zprime_Inclusive_Treemaker(output, source, isData)
+	treemaker = Zprime_Inclusive_Treemaker(output, source, isData, triggers)
 	treemaker.Fill('B2GTTreeMaker/B2GTree')
 	print "*** Cleaning up..."
 
@@ -53,10 +55,6 @@ if __name__ == '__main__':
 	#run("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/", "test", False)
 
 	# Things to actually run.
-	multiprocess("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/")
-	multiprocess("/eos/uscms/store/user/bjr/b2g/trees/Sep22")
-	multiprocess("/eos/uscms/store/user/bjr/b2g-pt100/trees_current_job/")
-	multiprocess("/eos/uscms/store/user/bjr/b2g-particles/trees_split_data/")
-
+	multiprocess("/eos/uscms/store/user/bjr/b2g/zprime-trees/")
 
 #	run("/eos/uscms/store/user/bjr/b2g-particles/trees_data/SingleElectron_Run2015D-PromptReco_v4-decosa", "SingleElectron_Run2015D-PromptReco_v4-decosa", True)

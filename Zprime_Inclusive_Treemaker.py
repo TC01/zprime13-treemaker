@@ -21,10 +21,11 @@ class Zprime_Inclusive_Treemaker:
 		self.files = []
 		self.TF = TreeFolder
 		print "Files in " + self.TF + " :"
-		for file in os.listdir(TreeFolder):
-			if file.endswith(".root"):
-				self.files.append(file)
-				print(file)
+		for path, dir, files in os.walk(TreeFolder):
+			for file in files:
+				if file.endswith(".root"):
+					self.files.append(os.path.join(path, file))
+					print(file)
 		print "IS THIS DATA? --- " + str(isData)
 		self.lepFiles = lepFiles
 		self.isData = isData
@@ -32,7 +33,7 @@ class Zprime_Inclusive_Treemaker:
 
 	def getUncertainty(self, rootfile, name, outputName):
 		dataEff = rootfile.Get(name + "/efficienciesMC/abseta_pt_MC")
-		mcEff = rootfile.Get(name + "/efficienciesDATA/abseta_pc_DATA")
+		mcEff = rootfile.Get(name + "/efficienciesDATA/abseta_pt_DATA")
 		dataEff.Divide(mcEff)
 		return dataEff.Clone(outputName)
 
@@ -47,9 +48,9 @@ class Zprime_Inclusive_Treemaker:
 		self.muID_eff = self.DATA_2D_muID_eff.Clone("ID_eff")
 
 		# Triggers. This could be made nicer but I'm feeling lazy...
-		triggerFile = ROOT.TFile(lF[1])
-		self.runC_rereco_mu45_eff = self.getUncertainty(triggerFile, "runCreRECO_Mu45_eta2p1_PtEtaBins")
-		self.runD_mu45_eff = self.getUncertainty(triggerFile, "runD_Mu45_eta2p1_PtEtaBins")
+		self.triggerFile = ROOT.TFile(lF[1])
+		self.runC_rereco_mu45_eff = self.getUncertainty(self.triggerFile, "runCreRECO_Mu45_eta2p1_PtEtaBins", "RunC_Mu45_Eff")
+		self.runD_mu45_eff = self.getUncertainty(self.triggerFile, "runD_Mu45_eta2p1_PtEtaBins", "RunD_Mu45_Eff")
 
 	# Create Branches for new trees (Error values will generally be -99.9... you should never see -99.9 except for the third-jet, which isn't required in all events.
 	def __book__(self):
@@ -139,8 +140,8 @@ class Zprime_Inclusive_Treemaker:
 		self.GenWeight = array('f', [-1.0])
 		self.muIDWeight = array('f', [-1.0])
 		self.muIDWeightErr = array('f', [-1.0])
-		self.runCrereco_mu45_Weight = array('f', [-1.0])
-		self.runCrereco_mu45_WeightErr = array('f', [-1.0])
+		self.runCreReco_mu45_Weight = array('f', [-1.0])
+		self.runCreReco_mu45_WeightErr = array('f', [-1.0])
 		self.runD_mu45_Weight = array('f', [-1.0])
 		self.runD_mu45_WeightErr = array('f', [-1.0])
 
@@ -150,6 +151,10 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('GenWeight', self.GenWeight)
 		self.addBranch('muIDWeight', self.muIDWeight)
 		self.addBranch('muIDWeightErr', self.muIDWeightErr)
+		self.addBranch('runCreReco_mu45_Weight', self.runCreReco_mu45_Weight)
+		self.addBranch('runCreReco_mu45_WeightErr', self.runCreReco_mu45_WeightErr)
+		self.addBranch('runD_mu45_Weight', self.runD_mu45_Weight)
+		self.addBranch('runD_mu45_WeightErr', self.runD_mu45_WeightErr)
 
 		# TAG JET
 		self.tagJetPt = array('f', [-99.9])
@@ -235,9 +240,11 @@ class Zprime_Inclusive_Treemaker:
 
 		# Triggers that we care about.
 		self.HLT_Mu24_eta2p1 = array('f', [-1.0])
-		self.HLT_Mu40_eta2p1 = array('f', [-1.0])
+		self.HLT_Mu45_eta2p1 = array('f', [-1.0])
+		self.HLT_Mu40_eta2p1_PFJet200_PFJet50 = array('f', [-1.0])
 		self.addBranch('HLT_Mu24_eta2p1', self.HLT_Mu24_eta2p1)
-		self.addBranch('HLT_Mu40_eta2p1', self.HLT_Mu40_eta2p1)
+		self.addBranch('HLT_Mu45_eta2p1', self.HLT_Mu45_eta2p1)
+		self.addBranch('HLT_Mu40_eta2p1_PFJet200_PFJet50', self.HLT_Mu40_eta2p1_PFJet200_PFJet50)
 		self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30 = array('f', [-1.0])
 		self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 = array('f', [-1.0])
 		self.addBranch('HLT_Ele33_CaloIdM_TrackIdM_PFJet30', self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30)
@@ -255,7 +262,7 @@ class Zprime_Inclusive_Treemaker:
 		print "filling..."
 		for i in self.files:
 			print "Reading from " + i
-			File = TFile(self.TF + i)
+			File = TFile(i)
 			Tree = File.Get(TreeName)
 
 			n = Tree.GetEntries()
@@ -464,7 +471,7 @@ class Zprime_Inclusive_Treemaker:
 					self.muIDWeight[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					self.muIDWeightErr[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
 					self.runCreReco_mu45_Weight[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
-					self.runCrereco_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runCreReco_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					self.runD_mu45_Weight[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					self.runD_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					# JET SF
@@ -512,7 +519,8 @@ class Zprime_Inclusive_Treemaker:
 
 					# Monte Carlo - triggers.
 					self.HLT_Mu24_eta2p1[0] = Tree.HLT_Mu24_eta2p1
-					self.HLT_Mu40_eta2p1[0] = Tree.HLT_Mu40_eta2p1
+					self.HLT_Mu45_eta2p1[0] = Tree.HLT_Mu45_eta2p1
+					self.HLT_Mu40_eta2p1_PFJet200_PFJet50[0] = Tree.HLT_Mu40_eta2p1_PFJet200_PFJet50
 					self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30[0] = Tree.HLT_Ele33_CaloIdM_TrackIdM_PFJet30
 					self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50[0] = Tree.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50
 
@@ -566,7 +574,7 @@ def make_W(met, lep): #both should be TLor vectors.
 #### TEST THE ABOVE FUNCTIONS:
 if __name__ == '__main__':
 	F = "/eos/uscms/store/user/bjr/b2g/zprime-trees/ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar_RH_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar/160105_194555/0000/"
-	test = Zprime_Inclusive_Treemaker("test", F, False, ["MuonID_Z_RunCD_Reco74X_Dec1.root"])
+	test = Zprime_Inclusive_Treemaker("test", F, False, ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.root"])
 	test.Fill("B2GTTreeMaker/B2GTree")
 	print "Cleaning up..."
 
