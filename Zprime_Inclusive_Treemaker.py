@@ -220,10 +220,13 @@ class Zprime_Inclusive_Treemaker:
 
 		# Triggers that we care about.
 		self.HLT_Mu24_eta2p1 = array('f', [-1.0])
+		self.HLT_Mu40_eta2p1 = array('f', [-1.0])
 		self.addBranch('HLT_Mu24_eta2p1', self.HLT_Mu24_eta2p1)
+		self.addBranch('HLT_Mu40_eta2p1', self.HLT_Mu40_eta2p1)
 		self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30 = array('f', [-1.0])
+		self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 = array('f', [-1.0])
 		self.addBranch('HLT_Ele33_CaloIdM_TrackIdM_PFJet30', self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30)
-
+		self.addBranch('HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50', self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 )
 
 	def LoadBranch(self, Tree, var):
 		Tree.SetBranchAddress(var[0], var[1])
@@ -490,7 +493,9 @@ class Zprime_Inclusive_Treemaker:
 
 					# Monte Carlo - triggers.
 					self.HLT_Mu24_eta2p1[0] = Tree.HLT_Mu24_eta2p1
+					self.HLT_Mu40_eta2p1[0] = Tree.HLT_Mu40_eta2p1
 					self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30[0] = Tree.HLT_Ele33_CaloIdM_TrackIdM_PFJet30
+					self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50[0] = Tree.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50
 
 
 #	#	#	#	# Fill things:
