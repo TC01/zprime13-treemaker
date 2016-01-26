@@ -263,9 +263,14 @@ class Zprime_Inclusive_Treemaker:
 		for i in self.files:
 			print "Reading from " + i
 			File = TFile(i)
-			Tree = File.Get(TreeName)
 
-			n = Tree.GetEntries()
+			# Rather than halting print an error message...
+			try:
+				Tree = File.Get(TreeName)
+				n = Tree.GetEntries()
+			except:
+				print "Error: unable to read a tree from " + i
+
 			total += n-1
 			for j in range(0, n): # Here is where we loop over all events.
 				if j % 5000 == 0:
@@ -273,11 +278,11 @@ class Zprime_Inclusive_Treemaker:
 	       				print 'Processing {0:10.0f}/{1:10.0f} : {2:5.2f} %'.format(j, n, percentDone )
 				Tree.GetEntry(j) # populates all our self. arrays with the tree's values
 
-				# Start finding variables and doing analysis things:
-				try:
-					self.weight[0] = Tree.evt_weight
-				except:
-					self.weight[0] = 1.0
+				# Get the weight!
+				# This is apparently evt_lumi_weight now...
+				if not self.isData:
+					self.weight[0] = Tree.evt_Lumi_Weight
+
 			############# FAT JET PART ################
 				tagJetIndex = -1
 				nTagJets = 0
