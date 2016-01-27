@@ -476,9 +476,9 @@ class Zprime_Inclusive_Treemaker:
 					self.muIDWeight[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
 					self.muIDWeightErr[0] = get_lep_SF_and_Unc(self.muID_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
 					self.runCreReco_mu45_Weight[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
-					self.runCreReco_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runCreReco_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runC_rereco_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
 					self.runD_mu45_Weight[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
-					self.runD_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[0]
+					self.runD_mu45_WeightErr[0] = get_lep_SF_and_Unc(self.runD_mu45_eff, min(lep.Pt(),119.9), math.fabs(lep.Eta()))[1]
 					# JET SF
 					# TRUTH
 					count = 0
