@@ -61,9 +61,9 @@ class Zprime_Inclusive_Treemaker:
 		# Branches of that tree:
 		self.weight = array('f', [-99.9])
 		self.addBranch('weight', self.weight)		
-		self.isEl = array('i', [-9])
+		self.isEl = array('f', [-9.0])
 		self.addBranch('isEl', self.isEl)	
-		self.isMu = array('i', [-9])
+		self.isMu = array('f', [-9.0])
 		self.addBranch('isMu', self.isMu)
 		self.metPt = array('f', [-99.9])
 		self.addBranch('metPt', self.metPt)
@@ -190,7 +190,7 @@ class Zprime_Inclusive_Treemaker:
 
 		# TWO LIGHT JETS AND RELATED QUANTITIES:
 		# - jets themselves:	
-		self.numLightJets = array('i', [-9])
+		self.numLightJets = array('f', [-9.0])
 		self.addBranch('numLightJets', self.numLightJets)	
 		self.leadJetPt = array('f', [-99.9])
 		self.addBranch('leadJetPt', self.leadJetPt)
