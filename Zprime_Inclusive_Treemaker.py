@@ -242,13 +242,13 @@ class Zprime_Inclusive_Treemaker:
 		self.HLT_Mu24_eta2p1 = array('f', [-1.0])
 		self.HLT_Mu45_eta2p1 = array('f', [-1.0])
 		self.HLT_Mu40_eta2p1_PFJet200_PFJet50 = array('f', [-1.0])
-		self.addBranch('HLT_Mu24_eta2p1', self.HLT_Mu24_eta2p1)
-		self.addBranch('HLT_Mu45_eta2p1', self.HLT_Mu45_eta2p1)
-		self.addBranch('HLT_Mu40_eta2p1_PFJet200_PFJet50', self.HLT_Mu40_eta2p1_PFJet200_PFJet50)
+		self.addBranch('Mu24', self.HLT_Mu24_eta2p1)
+		self.addBranch('Mu45', self.HLT_Mu45_eta2p1)
+		self.addBranch('Mu40', self.HLT_Mu40_eta2p1_PFJet200_PFJet50)
 		self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30 = array('f', [-1.0])
 		self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 = array('f', [-1.0])
-		self.addBranch('HLT_Ele33_CaloIdM_TrackIdM_PFJet30', self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30)
-		self.addBranch('HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50', self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 )
+		self.addBranch('Ele33', self.HLT_Ele33_CaloIdM_TrackIdM_PFJet30)
+		self.addBranch('Ele45', self.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50 )
 
 	def LoadBranch(self, Tree, var):
 		Tree.SetBranchAddress(var[0], var[1])
