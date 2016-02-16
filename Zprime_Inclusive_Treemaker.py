@@ -10,8 +10,9 @@ from array import array
 import ROOT
 from ROOT import *
 
-# The leppt.
+# leptonic cut constraints.
 lepPtCut = 25.
+lepFactor = 1.25
 
 # Class Definition:
 class Zprime_Inclusive_Treemaker:
@@ -325,10 +326,10 @@ class Zprime_Inclusive_Treemaker:
 						self.isEl[0] = 1
 						self.isMu[0] = 0
 				elif len(Tree.el_Pt) > 0 and len(Tree.mu_Pt) > 0:
-					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.1 and 2 * Tree.el_Pt[0] < Tree.mu_Pt[0]:
+					if Tree.mu_Pt[0] > lepPtCut and math.fabs(Tree.mu_Eta[0]) < 2.1 and lepFactor * Tree.el_Pt[0] < Tree.mu_Pt[0]:
 						self.isMu[0] = 1
 						self.isEl[0] = 0
-					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.1 and 2 * Tree.mu_Pt[0] < Tree.el_Pt[0]:
+					elif Tree.el_Pt[0] > lepPtCut and math.fabs(Tree.el_Eta[0]) < 2.1 and lepFactor * Tree.mu_Pt[0] < Tree.el_Pt[0]:
 						self.isEl[0] = 1
 						self.isMu[0] = 0
 
