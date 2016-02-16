@@ -13,8 +13,19 @@ triggers = ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTri
 
 def run(source, output, isData):
 	print "*** Running over " + source
+
+	# Initialize pileup:
+	PUF = TFile("pileup/PUnom.root")
+	PUn = PUF.Get("pileup")
+	PUU = TFile("pileup/PUup.root")
+	PUu = PUU.Get("pileup")
+	PUD = TFile("pileup/PUdn.root")
+	PUd = PUD.Get("pileup")
+	pileup = [PUn, PUu, PUd]
+
+
 	treemaker = Zprime_Inclusive_Treemaker(output, source, isData, triggers)
-	treemaker.Fill('B2GTTreeMaker/B2GTree')
+	treemaker.Fill('B2GTTreeMaker/B2GTree', pileup)
 	print "*** Cleaning up..."
 
 def multiprocess(directory):

@@ -134,6 +134,14 @@ class Zprime_Inclusive_Treemaker:
 		self.addBranch('isLeptonic', self.isLeptonic)
 		self.addBranch('isTauEvent', self.isTauEvent)
 
+		# Pileup weight
+		self.pileupWeight = array('f', [-1.0])
+		self.addBranch('pileupWeight', self.pileupWeight)
+		self.pileupUp = array('f', [-1.0])
+		self.addBranch('pileupUp', self.pileupUp)
+		self.pileupDown = array('f', [-1.0])
+		self.addBranch('pileupDown', self.pileupDown)
+
 		# Keep systematics info and stuff.
 		self.XSec = array('f', [-1.0])
 		self.NEventCorr = array('f', [-1.0])
@@ -254,7 +262,8 @@ class Zprime_Inclusive_Treemaker:
 	def LoadBranch(self, Tree, var):
 		Tree.SetBranchAddress(var[0], var[1])
 
-	def Fill(self, TreeName): # Loop through events and fill them. Actual Fill step is done at the end, allowing us to make a few quality control cuts.
+	# Loop through events and fill them. Actual Fill step is done at the end, allowing us to make a few quality control cuts.
+	def Fill(self, TreeName, pileup):
 
 		if not self.isData:
 			self.GetLepUncertainties(self.lepFiles)
@@ -311,6 +320,12 @@ class Zprime_Inclusive_Treemaker:
 					self.metPhi[0] = Tree.met_Phi[0]
 				else:
 					continue
+
+				# PILEUP:
+				pileupWeights = GetPUW(Tree.pu_NtrueInt, pileup)
+				self.pileupWeight[0] = pileupWeights[0]
+				self.pileupUp[0] = pileupWeights[1]
+				self.pileupDown[0] = pileupWeights[2]
 
 			############# LEPTON PART ################
 
@@ -551,6 +566,7 @@ def get_lep_SF_and_Unc(scan, pt, eta):
 	SF = scan.GetBinContent(scan.FindBin(eta,pt))
 	SF_Err = scan.GetBinError(scan.FindBin(eta,pt))
 	return [SF, SF_Err]
+
 def make_W(met, lep): #both should be TLor vectors.
 	newmet = ROOT.TLorentzVector()
 	newmet_m = ROOT.TLorentzVector()
@@ -577,10 +593,26 @@ def make_W(met, lep): #both should be TLor vectors.
 		newmet_m.SetE(math.sqrt(newmet_m.Px()*newmet_m.Px()+newmet_m.Py()*newmet_m.Py()+newmet_m.Pz()*newmet_m.Pz()))
 		return [newmet_p+lep, newmet_m+lep]
 
+def GetPUW(n, R):
+    N = R[0].GetBinContent(R[0].FindBin(n))
+    U = R[1].GetBinContent(R[1].FindBin(n))
+    D = R[2].GetBinContent(R[2].FindBin(n))
+    return [N,U,D]
+
 #### TEST THE ABOVE FUNCTIONS:
 if __name__ == '__main__':
 	F = "/eos/uscms/store/user/bjr/b2g/zprime-trees-round2/ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar_RH_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar/160126_032702/0000/"
-	test = Zprime_Inclusive_Treemaker("test", F, False, ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.root"])
-	test.Fill("B2GTTreeMaker/B2GTree")
-	print "Cleaning up..."
 
+	# Initialize pileup:
+	PUF = TFile("pileup/PUnom.root")
+	PUn = PUF.Get("pileup")
+	PUU = TFile("pileup/PUup.root")
+	PUu = PUU.Get("pileup")
+	PUD = TFile("pileup/PUdn.root")
+	PUd = PUD.Get("pileup")
+	pileup = [PUn, PUu, PUd]
+
+	triggers = ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.root"]
+	test = Zprime_Inclusive_Treemaker("test", F, False, triggers)
+	test.Fill("B2GTTreeMaker/B2GTree", pileup)
+	print "Cleaning up..."
