@@ -55,6 +55,10 @@ if __name__ == '__main__':
 	#run("/uscms_data/d3/jkarancs/B2GTTreeNtuple/Aug13/SingleElectron_Run2015B-PromptReco/", "test", False)
 
 	# Things to actually run.
-	multiprocess("/eos/uscms/store/user/bjr/b2g/zprime-trees/")
+
+	multiprocess("/eos/uscms/store/user/bjr/b2g/zprime-trees-round2/")
+#	multiprocess("/eos/uscms/store/user/osherson/b2g/QCD_SAFE/")
+#	multiprocess("/eos/uscms/store/user/bjr/b2g/backgrounds/")
+#	multiprocess("/eos/uscms/store/user/anovak/b2g/")
 
 #	run("/eos/uscms/store/user/bjr/b2g-particles/trees_data/SingleElectron_Run2015D-PromptReco_v4-decosa", "SingleElectron_Run2015D-PromptReco_v4-decosa", True)

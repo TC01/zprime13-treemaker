@@ -508,7 +508,7 @@ class Zprime_Inclusive_Treemaker:
 							momID = Tree.gen_MomID[mcIndex]
 						except:
 							momID = Tree.gen_Mom0ID[mcIndex]
-						if id in leptonIDs and momID == abs(24):
+						if id in leptonIDs and abs(momID) == 24:
 							self.isLeptonic[0] += 1.0
 						if id == 15:
 							self.isTauEvent[0] = 1.0
@@ -578,7 +578,7 @@ def make_W(met, lep): #both should be TLor vectors.
 
 #### TEST THE ABOVE FUNCTIONS:
 if __name__ == '__main__':
-	F = "/eos/uscms/store/user/bjr/b2g/zprime-trees/ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar_RH_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar/160105_194555/0000/"
+	F = "/eos/uscms/store/user/bjr/b2g/zprime-trees-round2/ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar_RH_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/crab_ZprimeToTprimeT_TprimeToWB_MZp-2000Nar_MTp-1200Nar/160126_032702/0000/"
 	test = Zprime_Inclusive_Treemaker("test", F, False, ["triggers/MuonID_Z_RunCD_Reco74X_Dec1.root", "triggers/SingleMuonTrigger_Z_RunCD_Reco74X_Dec1.root"])
 	test.Fill("B2GTTreeMaker/B2GTree")
 	print "Cleaning up..."
